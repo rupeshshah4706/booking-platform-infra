@@ -1,0 +1,9 @@
+image:
+  repository: bitnami/kafka
+  tag: latest
+replicaCount: 1
+service:
+  port: 9092
+zookeeper:
+  host: zookeeper
+  port: 2181

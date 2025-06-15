@@ -1,0 +1,7 @@
+replicaCount: 1
+numPartitions: 3
+zookeeper:
+  enabled: false
+externalZookeeper:
+  servers:
+    - zookeeper

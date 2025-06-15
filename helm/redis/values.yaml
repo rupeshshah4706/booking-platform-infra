@@ -1,0 +1,6 @@
+image:
+  repository: bitnami/redis
+  tag: latest
+replicaCount: 1
+service:
+  port: 6379

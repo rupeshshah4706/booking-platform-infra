@@ -1,0 +1,6 @@
+image:
+  repository: bitnami/zookeeper
+  tag: latest
+replicaCount: 1
+service:
+  port: 2181
