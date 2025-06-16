@@ -2,8 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: booking-processor
+  labels:
+    app: booking-processor
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: booking-processor
@@ -14,6 +16,7 @@ spec:
     spec:
       containers:
         - name: booking-processor
-          image: your-registry/booking-processor:latest
+          image: booking-processor:latest  # assuming built inside Minikube
+          imagePullPolicy: Never
           ports:
             - containerPort: 8080

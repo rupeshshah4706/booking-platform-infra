@@ -3,7 +3,10 @@ kind: Service
 metadata:
   name: booking
 spec:
-  ports:
-    - port: 8080
+  type: NodePort   # ← this is the key fix
   selector:
     app: booking
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30080  # optional, or leave out to auto-assign

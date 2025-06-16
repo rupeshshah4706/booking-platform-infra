@@ -1,3 +1,13 @@
-architecture: standalone
-auth:
-  enabled: false
+image:
+  repository: bitnami/redis
+  tag: latest
+replicaCount: 1
+service:
+  port: 6379
+
+# Redis configuration
+redis:
+  # Set allowEmptyPassword to true for development
+  allowEmptyPassword: true
+  # Uncomment and set password for production use
+  # password: "redis123"

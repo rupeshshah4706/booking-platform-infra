@@ -21,8 +21,40 @@ This repository contains Kubernetes manifests, custom Helm charts, and automatio
 
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [Helm](https://helm.sh/)
-- Access to a Kubernetes cluster
+- [Minikube](https://minikube.sigs.k8s.io/docs/start/) or access to a Kubernetes cluster
 - Docker registry credentials (for CI/CD)
+
+## Minikube Setup
+
+### Installation
+
+```sh
+# macOS (using Homebrew)
+brew install minikube
+
+# macOS (using direct download)
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-darwin-amd64
+sudo install minikube-darwin-amd64 /usr/local/bin/minikube
+```
+
+### Starting Minikube
+
+```sh
+# Start with sufficient resources for all components
+minikube start --cpus=4 --memory=8192 --disk-size=20g
+
+# Enable ingress addon (optional)
+minikube addons enable ingress
+
+# Verify minikube is running
+minikube status
+```
+
+### Configure kubectl to use Minikube
+
+```sh
+kubectl config use-context minikube
+```
 
 ## Deployment
 
@@ -35,46 +67,50 @@ kubectl apply -f k8s/postgres/configmap-initdb.yaml
 kubectl apply -f k8s/postgres/deployment.yaml
 kubectl apply -f k8s/postgres/service.yaml
 ```
-#### Redis (using Helm)
+#### Redis
 ```sh
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install redis bitnami/redis -f k8s/redis/values.yaml
+# Using our simplified templates
+helm install redis ./k8s/redis
 ```
-#### ZooKeeper (using Helm)
+#### ZooKeeper
 ```sh
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install zookeeper bitnami/zookeeper -f k8s/zookeeper/values.yaml
+# Using our simplified templates
+helm install zookeeper ./k8s/zookeeper
 ```
-#### Kafka (using Helm)
+#### Kafka
 ```sh
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install kafka bitnami/kafka -f k8s/kafka/values.yaml
+# Using our simplified templates
+helm install kafka ./k8s/kafka
+# Note: The kafka-setup-job will automatically create necessary topics and consumer groups
 ```
-### 2. Deploy Booking Platform Services
+
+### 2. Deploy Application Services
+
+#### Booking Service
 ```sh
-kubectl apply -f k8s/booking-service/deployment.yaml
-kubectl apply -f k8s/booking-service/service.yaml
-kubectl apply -f k8s/notification-service/deployment.yaml
-kubectl apply -f k8s/notification-service/service.yaml
-kubectl apply -f k8s/user-service/deployment.yaml
-kubectl apply -f k8s/user-service/service.yaml
-kubectl apply -f k8s/payment-service/deployment.yaml
-kubectl apply -f k8s/payment-service/service.yaml
-kubectl apply -f k8s/flight-service/deployment.yaml
-kubectl apply -f k8s/flight-service/service.yaml
-kubectl apply -f k8s/hotel-service/deployment.yaml
-kubectl apply -f k8s/hotel-service/service.yaml
-kubectl apply -f k8s/car-service/deployment.yaml
-kubectl apply -f k8s/car-service/service.yaml
-kubectl apply -f k8s/gateway/deployment.yaml
-kubectl apply -f k8s/gateway/service.yaml
+# Deploy booking service
+kubectl apply -f k8s/booking/deployment.yaml
+kubectl apply -f k8s/booking/service.yaml
 ```
-### 3. Setup Kafka Topics
+
+#### Booking Processor
 ```sh
-kubectl exec -it <kafka-pod-name> -- kafka-topics.sh --create --topic booking-events --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1
-kubectl exec -it <kafka-pod-name> -- kafka-topics.sh --create --topic user-events --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1
+# Deploy booking processor
+kubectl apply -f k8s/booking-processor/deployment.yaml
+kubectl apply -f k8s/booking-processor/service.yaml
 ```
-### 4. Verify Deployment
+
+### 3. Kafka Topics and Consumer Groups
+Topics and consumer groups are automatically created by the Kafka setup job that runs after installation. You can verify they were created with:
+
+```sh
+# List topics
+kubectl exec -it $(kubectl get pods -l app=kafka -o jsonpath='{.items[0].metadata.name}') -- /opt/bitnami/kafka/bin/kafka-topics.sh --list --bootstrap-server kafka:9092
+
+# List consumer groups
+kubectl exec -it $(kubectl get pods -l app=kafka -o jsonpath='{.items[0].metadata.name}') -- /opt/bitnami/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --list
+```
+### 3. Verify Deployment
 ```sh
 kubectl get pods
 kubectl get services

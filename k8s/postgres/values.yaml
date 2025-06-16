@@ -1,0 +1,38 @@
+## PostgreSQL Configuration
+image:
+  repository: postgres
+  tag: "15"
+  pullPolicy: IfNotPresent
+
+## Deployment Configuration
+replicaCount: 1
+
+## PostgreSQL Configuration
+postgresConfig:
+  username: postgres
+  password: securepassword123
+  database: appdb
+
+## Service Configuration
+service:
+  type: ClusterIP
+  port: 5432
+
+## Resource Configuration
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+## Storage Configuration
+persistence:
+  enabled: true
+  size: 1Gi
+  storageClass: ""
+
+## Init database script
+initdb:
+  enabled: true

@@ -2,8 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: booking
+  labels:
+    app: booking
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: booking
@@ -14,6 +16,7 @@ spec:
     spec:
       containers:
         - name: booking
-          image: your-registry/booking:latest
+          image: booking:latest  # assuming image is built locally in minikube
+          imagePullPolicy: Never
           ports:
             - containerPort: 8080

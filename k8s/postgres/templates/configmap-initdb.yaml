@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-initdb
+  labels:
+    app: postgres
+data:
+  init.sql: |
+    CREATE DATABASE booking;
+    \c booking
+    CREATE TABLE bookings (
+      id SERIAL PRIMARY KEY,
+      user_id INT,
+      booking_date TIMESTAMP
+    );
+    CREATE INDEX idx_booking_user ON bookings(user_id);

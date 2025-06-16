@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 6379
+          env:
+            # For development environments, allow empty password
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "yes"
+            # Uncomment and set this for production use
+            # - name: REDIS_PASSWORD
+            #   value: "redis123"

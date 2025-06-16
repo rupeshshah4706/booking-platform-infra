@@ -1,9 +1,12 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: zookeeper
+  labels:
+    app: zookeeper
 spec:
-  replicas: {{ .Values.replicaCount }}
+  serviceName: zookeeper-headless
+  replicas: 1
   selector:
     matchLabels:
       app: zookeeper
@@ -13,7 +16,38 @@ spec:
         app: zookeeper
     spec:
       containers:
-        - name: zookeeper
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          ports:
-            - containerPort: 2181
+      - name: zookeeper
+        image: "bitnami/zookeeper:latest"
+        ports:
+        - name: client
+          containerPort: 2181
+        - name: follower
+          containerPort: 2888
+        - name: election
+          containerPort: 3888
+        env:
+        - name: ZOO_SERVERS
+          value: "server.0=zookeeper-0.zookeeper-headless:2888:3888"
+        - name: ZOO_STANDALONE_ENABLED
+          value: "true"
+        # Allow empty password for development
+        - name: ALLOW_ANONYMOUS_LOGIN
+          value: "yes"
+        livenessProbe:
+          exec:
+            command:
+            - zkServer.sh
+            - status
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        volumeMounts:
+        - name: data
+          mountPath: /bitnami/zookeeper
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

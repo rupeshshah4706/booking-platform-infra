@@ -1,0 +1,6 @@
+.DS_Store
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+booking-platform-infra.iml
+k8s/.DS_Store

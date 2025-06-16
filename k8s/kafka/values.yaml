@@ -1,5 +1,19 @@
+# Basic settings
 replicaCount: 1
-numPartitions: 3
+image:
+  repository: bitnami/kafka
+  tag: latest
+
+# Kafka configuration
+kafka:
+  topicPartitions: 3
+  replicationFactor: 1
+  topics:
+    - bookings
+  consumerGroups:
+    - booking-processor-group
+
+# ZooKeeper configuration
 zookeeper:
   enabled: false
 externalZookeeper:
